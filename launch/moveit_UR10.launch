@@ -1,0 +1,15 @@
+<launch>
+	<node pkg="timed_roslaunch" type="timed_roslaunch.sh" args="1 ur_gazebo ur10.launch limited:=true" name="ur_gazebo" output="screen" />
+	<node pkg="timed_roslaunch" type="timed_roslaunch.sh" args="5 ur10_moveit_config ur10_moveit_planning_execution.launch sim:=true limited:=true" name="ur10_moveit_planning_execution" output="screen" />
+	<node pkg="timed_roslaunch" type="timed_roslaunch.sh" args="10 ur10_moveit_config moveit_rviz.launch config:=true" name="moveit_rviz" output="screen" />
+
+	<!-- <include file="$(find ur_gazebo)/launch/ur10.launch" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' ">
+		<arg name="limited" value="true" />
+	</include>
+	<include file="$(find ur10_moveit_config)/launch/ur10_moveit_planning_execution.launch" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' ">
+		<arg name="limited" value="true" />
+	</include>
+	<include file="$(find ur10_moveit_config)/launch/moveit_rviz.launch" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' ">
+		<arg name="config" value="true" />
+	</include> -->
+</launch>
