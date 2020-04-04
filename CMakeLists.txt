@@ -9,6 +9,7 @@ project(highfive)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
+  sensor_msgs
   moveit_commander
   moveit_msgs
   roscpp
