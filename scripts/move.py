@@ -16,7 +16,7 @@ def move():
 
     moveit_commander.roscpp_initialize(sys.argv)
     rospy.init_node('move', anonymous=True)
-    pub = rospy.Publisher('/is_recording', Int64, queue_size=10)
+    pub = rospy.Publisher('/is_recording', Int64, queue_size=10, latch=True)
     
     record = Int64()
 
