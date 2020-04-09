@@ -1,115 +1,164 @@
-# # Modified from Yash Patel's  Deep Q Network Tutorial
-# Anmol Modur - Reid Kovacs - EE64
 
+#==============================   People responsible for this devistating tradegy   ==============================
 
-import gym
+## Anmol Modur, Reid Kovacs 
+# Deep Q Learning for High Fives
+
+#==================================================   Imports   ==================================================
+import matplotlib.pyplot as plt
 import numpy as np
 import random
+import keras
 from keras.models import Sequential
-from keras.layers import Dense, Dropout
+from keras.layers.core import Dense, Dropout, Activation
+from keras.utils import np_utils
 from keras.optimizers import Adam
-
 from collections import deque
+import pandas as pd 
+import os
 
-class DQN: # Deeeeep Q network
-    def __init__(self, env, gamma = 0.85, epsilon = 1.0):
-        self.env     = env
-        self.memory  = deque(maxlen=2000)
+from keras.utils import plot_model
+from IPython.display import SVG
+from keras.utils import model_to_dot
+
+from highfivesim import HighFiveSim
+
+#================================================   Model Class   ================================================
+
+class DeepQModel:
+    def __init__(self, environment , gamma = 0.85, epsilon = 1):
+
+        self.environment = environment
+
+        self.memory = deque(maxlen=1000)    #
+        self.gamma = gamma                  # Future reward depreciation factor
+        self.epsilon = epsilon              # Fraction of time dedicated to exploring
+        self.eps_min = 0.1                  # epsilon minimum
+        self.eps_decay = 0.995              # epsilon decay
+        self.learning_rate = 0.005          # learning rate
+        self.tau = 0.125
+
+        self.model  = self.create_model()
+        self.model_target = self.create_model()
+
+        self.actions = [0,1,2,3]                # 0 is no go, 1 is go
+
+    def create_model(self):
+        ''' Create Keras Sequential Model '''
+
+        self.environment.importData()
+        state_shape = self.environment.getState().shape
         
-        self.gamma = gamma
-        self.epsilon = epsilon
-        self.epsilon_min = 0.01
-        self.epsilon_decay = 0.995
-        self.learning_rate = 0.005
-        self.tau = .125
+        model = Sequential()
+        
+        model.add(Dropout(0.1))
+        # model.add(Dense(16, input_dim = state_shape[0], activation = 'relu'))   #
+        model.add(Dense(40, input_dim = 40, activation = 'relu'))   #
+        model.add(Dense(32, activation = 'relu'))
+        model.add(Dense(16, activation = 'relu'))
+        model.add(Dense(4,  activation = 'linear')) #how far to go
 
-        self.model        = self.create_model()
-        self.target_model = self.create_model()
+        plot_model(model, show_shapes = True)
+        # input("Press Enter to continue....")
 
-    def create_model(self): #===========================Model Creation
-        model   = Sequential()
-        state_shape  = self.env.observation_space.shape
-        model.add(Dense(24, input_dim=state_shape[0], activation="relu"))
-        model.add(Dense(48, activation="relu"))
-        model.add(Dense(24, activation="relu"))
-        model.add(Dense(self.env.action_space.n))
-        model.compile(loss="mean_squared_error",
-            optimizer=Adam(lr=self.learning_rate))
+        model.compile(loss='mean_squared_error', optimizer=Adam(lr=self.learning_rate))
+
         return model
 
-    def act(self, state):
-        self.epsilon *= self.epsilon_decay
-        self.epsilon = max(self.epsilon_min, self.epsilon)
-        if np.random.random() < self.epsilon:
-            return self.env.action_space.sample()
-        return np.argmax(self.model.predict(state)[0])
+    def choose_action(self, state):
+        ''' 
+        Chose an action depending on state unless the model is under-developed. During the beginning stages of the training, the actions will be random and slowly it will begin to trust itself
+        
+        :param state: The current state as to which an action will be decided on
+        :return: action
+        '''
 
-    def remember(self, state, action, reward, new_state, done):
-        self.memory.append([state, action, reward, new_state, done])
+        self.epsilon = self.epsilon * self.eps_decay
+        self.epsilon = max(self.eps_min, self.epsilon)
+        if np.random.random() < self.epsilon:
+            return self.actions[int(np.round(np.random.random()*3))]         #choose action randomly
+        # print(state.reshape((1,40)).shape)
+        return np.argmax(self.model.predict(state))
+        
+    def record(self, state, action, reward, new_state, goal):
+        ''' record state information to memory '''
+        
+        self.memory.append([state, action, reward, new_state, goal])
 
     def replay(self):
-        batch_size = 32
-        if len(self.memory) < batch_size: 
+        ''' ???? '''
+        batch_size = 32 
+        if len(self.memory) < batch_size:
             return
 
         samples = random.sample(self.memory, batch_size)
         for sample in samples:
-            state, action, reward, new_state, done = sample
-            target = self.target_model.predict(state)
-            if done:
+            state, action, reward, new_state, goal = sample
+            target = self.model_target.predict(state)
+            if goal:
                 target[0][action] = reward
             else:
-                Q_future = max(self.target_model.predict(new_state)[0])
+                Q_future = max(self.model_target.predict(new_state)[0])
                 target[0][action] = reward + Q_future * self.gamma
             self.model.fit(state, target, epochs=1, verbose=0)
 
     def target_train(self):
-        weights = self.model.get_weights()
-        target_weights = self.target_model.get_weights()
-        for i in range(len(target_weights)):
-            target_weights[i] = weights[i] * self.tau + target_weights[i] * (1 - self.tau)
-        self.target_model.set_weights(target_weights)
+        ''' '''
 
-    def save_model(self, fn):
-        self.model.save(fn)
+        weights = self.model.get_weights()
+        target_weights = self.model_target.get_weights()
+        for i in range(len(target_weights)):
+            target_weights[i] = weight[i] * self.tau + target_weights[i] * (1-self.tau)
+        self.model_target.set_weights(target_weights)
+
+
+    # def save_model(self, fn):
+    #     self.model.save(fn)
+
+#================================================   Main Function   ================================================
 
 def main():
-    env     = gym.make("MountainCar-v0")
-    gamma   = 0.9 # Future reward depreciation factor
-    epsilon = .95 # Fractional time dedicated to exploring
+    # Loading Simulator
+    robot_data = 'robot_data/202048_13287.txt'
+    hand_data = 'hand_data/Data2_keyframes.txt'
 
-    trials  = 1000
-    trial_len = 500
+    environment = HighFiveSim(hand_data, robot_data)
+    highFiveAgent = DeepQModel( environment=environment)
 
-    # updateTargetNetwork = 1000
-    dqn_agent = DQN(env=env, gamma=gamma, epsilon=epsilon )
-    steps = []
+    trials = 100
+    trial_len = 189 # duration of hand time series
+
     for trial in range(trials):
-       
-        cur_state = env.reset().reshape(1,2)
+
+        current_state = environment.getState() #??
+
         for step in range(trial_len):
-            env.render()
-            action = dqn_agent.act(cur_state)
-            new_state, reward, done, _ = env.step(action)
+            action = environment.performAction(highFiveAgent.choose_action(current_state))
+            ## anmol look here
+            new_state = environment.getState()
+            reward = environment.getReward()
+            #reward if goal 
+            goal = environment.isGoal()
 
-            # reward = reward if not done else -20
-            new_state = new_state.reshape(1,2)
-            dqn_agent.remember(cur_state, action, reward, new_state, done)
-            
-            dqn_agent.replay()       # internally iterates default (prediction) model
-            dqn_agent.target_train() # iterates target model
+            highFiveAgent.record(current_state, action, reward, new_state, goal )
 
-            cur_state = new_state
-            if done:
+            highFiveAgent.replay()
+            highFiveAgent.target_train()
+
+            current_state = new_state
+
+            if goal:
                 break
-        if step >= 199:
-            print("Failed to complete in trial {}".format(trial))
-            if step % 10 == 0:
-                dqn_agent.save_model("trial-{}.model".format(trial))
-        else:
-            print("Completed in {} trials".format(trial))
-            dqn_agent.save_model("success.model")
+        if goal:
+            print("completed in {} trials!".format(trial))
             break
+        else:
+            print("failed trial {}".format(trial))
 
 if __name__ == "__main__":
     main()
+
+
+
+
+    
