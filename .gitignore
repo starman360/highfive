@@ -2,3 +2,5 @@
 scripts/.vscode/
 
 .vscode/
+
+venv
