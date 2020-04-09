@@ -1,4 +1,5 @@
-## Modified from Yash Patel's  Deep Q Network Tutorial
+# # Modified from Yash Patel's  Deep Q Network Tutorial
+# Anmol Modur - Reid Kovacs - EE64
 
 
 import gym
@@ -10,13 +11,13 @@ from keras.optimizers import Adam
 
 from collections import deque
 
-class DQN:
-    def __init__(self, env):
+class DQN: # Deeeeep Q network
+    def __init__(self, env, gamma = 0.85, epsilon = 1.0):
         self.env     = env
         self.memory  = deque(maxlen=2000)
         
-        self.gamma = 0.85
-        self.epsilon = 1.0
+        self.gamma = gamma
+        self.epsilon = epsilon
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.995
         self.learning_rate = 0.005
@@ -25,7 +26,7 @@ class DQN:
         self.model        = self.create_model()
         self.target_model = self.create_model()
 
-    def create_model(self):
+    def create_model(self): #===========================Model Creation
         model   = Sequential()
         state_shape  = self.env.observation_space.shape
         model.add(Dense(24, input_dim=state_shape[0], activation="relu"))
@@ -74,14 +75,14 @@ class DQN:
 
 def main():
     env     = gym.make("MountainCar-v0")
-    gamma   = 0.9
-    epsilon = .95
+    gamma   = 0.9 # Future reward depreciation factor
+    epsilon = .95 # Fractional time dedicated to exploring
 
     trials  = 1000
     trial_len = 500
 
     # updateTargetNetwork = 1000
-    dqn_agent = DQN(env=env)
+    dqn_agent = DQN(env=env, gamma=gamma, epsilon=epsilon )
     steps = []
     for trial in range(trials):
        
