@@ -11,6 +11,10 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout
 from keras.optimizers import Adam
 
+from keras.utils import plot_model
+from IPython.display import SVG
+from keras.utils import model_to_dot
+
 from collections import deque
 
 class DQN: # Deeeeep Q network
@@ -36,6 +40,8 @@ class DQN: # Deeeeep Q network
         model.add(Dense(48, activation="relu"))
         model.add(Dense(24, activation="relu"))
         model.add(Dense(self.env.action_space.n))
+        plot_model(model, show_shapes = True)
+
         model.compile(loss="mean_squared_error",
             optimizer=Adam(lr=self.learning_rate))
         return model
@@ -45,7 +51,7 @@ class DQN: # Deeeeep Q network
         self.epsilon = max(self.epsilon_min, self.epsilon)
         if np.random.random() < self.epsilon:
             return self.env.action_space.sample()
-            print(state)
+        print(state)
         return np.argmax(self.model.predict(state)[0])
 
     def remember(self, state, action, reward, new_state, done):

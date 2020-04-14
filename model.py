@@ -50,10 +50,10 @@ class DeepQModel:
         state_shape = self.environment.getState().shape
         
         model = Sequential()
-        
-        model.add(Dropout(0.1))
+        # print(state_shape)
+        # model.add(Dropout(0.1))
         # model.add(Dense(16, input_dim = state_shape[0], activation = 'relu'))   #
-        model.add(Dense(40, input_dim = 40, activation = 'relu'))   #
+        model.add(Dense(40, input_dim = state_shape[1], activation = 'relu'))   #
         model.add(Dense(32, activation = 'relu'))
         model.add(Dense(16, activation = 'relu'))
         model.add(Dense(4,  activation = 'linear')) #how far to go
@@ -77,8 +77,10 @@ class DeepQModel:
         self.epsilon = max(self.eps_min, self.epsilon)
         if np.random.random() < self.epsilon:
             return self.actions[int(np.round(np.random.random()*3))]         #choose action randomly
-        # print(state.reshape((1,40)).shape)
-        return np.argmax(self.model.predict(state))
+        # print("act " + str(state.shape))
+        # print(type(state))
+        # print(state)
+        return np.argmax(self.model.predict(state)[0])
         
     def record(self, state, action, reward, new_state, goal):
         ''' record state information to memory '''
@@ -94,6 +96,8 @@ class DeepQModel:
         samples = random.sample(self.memory, batch_size)
         for sample in samples:
             state, action, reward, new_state, goal = sample
+            # print("replay " + str(state.shape))
+            # print(state)
             target = self.model_target.predict(state)
             if goal:
                 target[0][action] = reward
@@ -108,7 +112,7 @@ class DeepQModel:
         weights = self.model.get_weights()
         target_weights = self.model_target.get_weights()
         for i in range(len(target_weights)):
-            target_weights[i] = weight[i] * self.tau + target_weights[i] * (1-self.tau)
+            target_weights[i] = weights[i] * self.tau + target_weights[i] * (1-self.tau)
         self.model_target.set_weights(target_weights)
 
 
@@ -139,7 +143,6 @@ def main():
             reward = environment.getReward()
             #reward if goal 
             goal = environment.isGoal()
-
             highFiveAgent.record(current_state, action, reward, new_state, goal )
 
             highFiveAgent.replay()

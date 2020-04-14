@@ -12,9 +12,9 @@ class HighFiveSim():
         self.robotGoal = 0
 
     def importData(self):
-        self.handData = pd.read_csv(self.handFile, engine='python')
+        self.handData = pd.read_csv(self.handFile, engine='python').fillna(0.0)
         self.handData = self.handData.drop(columns=['t', ' keyframeid'])
-        self.robotData = pd.read_csv(self.robotFile, engine='python')
+        self.robotData = pd.read_csv(self.robotFile, engine='python').fillna(0.0)
         self.robotGoal = len(self.robotData) - 1 
         self.robotData = self.robotData.drop(columns=['t'])
 
@@ -25,8 +25,9 @@ class HighFiveSim():
     def getState(self):
         hdata = self.handData.iloc[self.handTime]
         rdata = self.robotData.iloc[self.robotTime]
-        bigdata = pd.concat([hdata, rdata], ignore_index=False, sort =False)
+        bigdata = pd.concat([hdata, rdata], ignore_index=False, sort=False)
         bd = bigdata.to_numpy()
+        bd = np.expand_dims(bd, axis=0)
         # print(bd.shape)
         return bd
 
