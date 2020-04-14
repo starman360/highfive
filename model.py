@@ -149,7 +149,7 @@ def update_progress(progress):
 def main():
     # Loading Simulator
     robot_data = 'robot_data/202048_13287.txt'
-    hand_data = 'hand_data/Data2_keyframes.txt'
+    hand_data = 'hand_data/Data3_keyframes.txt'
 
     environment = HighFiveSim(hand_data, robot_data)
     highFiveAgent = DeepQModel( environment=environment)
