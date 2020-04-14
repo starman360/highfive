@@ -50,11 +50,12 @@ class HighFiveSim():
 
     def isGoal(self):
         if 112 <= self.handTime <= 136:
-            if robotTime == robotGoal:
+            if self.robotTime == self.robotGoal:
                 return True
         return False
 
     def getReward(self): #needs work ... will improve.. we promise
+        
         if self.isGoal():
             return 1
         else:
