@@ -2,8 +2,9 @@ import os
 import json
 import numpy as np
 
-dirname = "Data2"
-directory = "/home/anmol/robot_ws/src/highfive/" + dirname
+dirname = "Data3"
+#directory = "/home/anmol/robot_ws/src/highfive/" + dirname
+directory = "E:/highfive/hand_data/" + dirname
 
 lstdir = os.listdir(directory)
 lstdir.sort()
