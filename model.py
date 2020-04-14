@@ -15,7 +15,7 @@ from keras.utils import np_utils
 from keras.optimizers import Adam
 from collections import deque
 import pandas as pd 
-import os
+import os, sys, time
 
 from keras.utils import plot_model
 from IPython.display import SVG
@@ -119,6 +119,31 @@ class DeepQModel:
     # def save_model(self, fn):
     #     self.model.save(fn)
 
+
+# update_progress() : Displays or updates a console progress bar
+## Accepts a float between 0 and 1. Any int will be converted to a float.
+## A value under 0 represents a 'halt'.
+## A value at 1 or bigger represents 100%
+def update_progress(progress):
+    barLength = 10 # Modify this to change the length of the progress bar
+    status = ""
+    if isinstance(progress, int):
+        progress = float(progress)
+    if not isinstance(progress, float):
+        progress = 0
+        status = "error: progress var must be float\r\n"
+    if progress < 0:
+        progress = 0
+        status = "Halt...\r\n"
+    if progress >= 1:
+        progress = 1
+        status = "Done...\r\n"
+    block = int(round(barLength*progress))
+    text = "\rProgress: [{0}] {1}% {2}".format( "#"*block + "-"*(barLength-block), progress*100, status)
+    sys.stdout.write(text)
+    sys.stdout.flush()
+
+
 #================================================   Main Function   ================================================
 
 def main():
@@ -129,15 +154,18 @@ def main():
     environment = HighFiveSim(hand_data, robot_data)
     highFiveAgent = DeepQModel( environment=environment)
 
-    trials = 100
+    trials = 1000
     trial_len = 189 # duration of hand time series
 
     for trial in range(trials):
 
+        environment.reset()
         current_state = environment.getState() #??
-
+        print("Trial : {}".format(trial))
         for step in range(trial_len):
             action = environment.performAction(highFiveAgent.choose_action(current_state))
+            if action == -1: # Can't make an action because out of time
+                break
             ## anmol look here
             new_state = environment.getState()
             reward = environment.getReward()
@@ -149,7 +177,7 @@ def main():
             highFiveAgent.target_train()
 
             current_state = new_state
-
+            update_progress(step/trial_len)
             if goal:
                 break
         if goal:
@@ -159,6 +187,7 @@ def main():
             print("failed trial {}".format(trial))
 
 if __name__ == "__main__":
+    time.sleep(5)
     main()
 
 
