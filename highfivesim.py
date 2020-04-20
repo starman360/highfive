@@ -49,7 +49,9 @@ class HighFiveSim():
         return action
 
     def isGoal(self):
-        if 112 <= self.handTime <= 136:
+        handGoal_MIN = 112
+        handGoal_MAX = 136
+        if handGoal_MIN <= self.handTime <= handGoal_MAX:
             if self.robotTime == self.robotGoal:
                 return True
         return False
