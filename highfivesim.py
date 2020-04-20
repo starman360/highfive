@@ -14,7 +14,7 @@ class HighFiveSim():
 
     def importData(self):
         self.handData = pd.read_csv(self.handFile, engine='python').fillna(0.0)
-        self.handGoal = len(self.handData) - 2 
+        self.handGoal = len(self.handData) - 2 ##why?
         self.handData = self.handData.drop(columns=['t', ' keyframeid'])
         self.robotData = pd.read_csv(self.robotFile, engine='python').fillna(0.0)
         self.robotGoal = len(self.robotData) - 2 
@@ -49,14 +49,25 @@ class HighFiveSim():
         return action
 
     def isGoal(self):
+        ''' Test if goal state. This is true if the robot end state is acheived 
+            within the bounds of the hand goal state.'''
+
         handGoal_MIN = 112
         handGoal_MAX = 136
+
         if handGoal_MIN <= self.handTime <= handGoal_MAX:
             if self.robotTime == self.robotGoal:
                 return True
         return False
 
+    def goalDistance(self):
+        '''return frame-count distance from current robot state to ideal hand goal state'''
+        handGoal_MIN = 112
+        handGoal_MAX = 136
+        return (handGoal_MAX+handGoal_MIN)/2
+
     def getReward(self): #needs work ... will improve.. we promise
+        ''' Two components: distance from goal and velocity'''
         
         if self.isGoal():
             return 1
