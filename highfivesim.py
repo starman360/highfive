@@ -68,11 +68,25 @@ class HighFiveSim():
 
     def getReward(self): #needs work ... will improve.. we promise
         ''' Two components: distance from goal and velocity'''
-        
-        if self.isGoal():
-            return 1
+        handGoal_MIN = 112
+        handGoal_MAX = 136
+        handGoal_MEAN = (handGoal_MAX+handGoal_MIN)/2
+
+        ## distance
+        x = self.goalDistance()
+        if x > 0:
+            distanceReward = 10/(1+exp((x/50)-200))
         else:
-            return -1000
+            distanceReward = 0
+
+        ## speed, needed?
+           
+
+        # old
+        # if self.isGoal():
+        #     return 1
+        # else:
+        #     return -1000
         
     def reset(self):
         self.robotTime = 0
