@@ -88,7 +88,7 @@ class DeepQModel:
         self.memory.append([state, action, reward, new_state, goal])
 
     def replay(self):
-        ''' ???? '''
+        '''  '''
         batch_size = 32 
         if len(self.memory) < batch_size:
             return
@@ -160,22 +160,26 @@ def main():
     for trial in range(trials):
 
         environment.reset()
-        current_state = environment.getState() #??
+        current_state = environment.getState() 
         print("Trial : {}".format(trial))
         for step in range(trial_len):
             action = environment.performAction(highFiveAgent.choose_action(current_state))
             if action == -1: # Can't make an action because out of time
                 break
-            ## anmol look here
+
+            # update status variables
             new_state = environment.getState()
             reward = environment.getReward()
-            #reward if goal 
+
+            #get reward in new state 
             goal = environment.isGoal()
             highFiveAgent.record(current_state, action, reward, new_state, goal )
 
+            # model functions
             highFiveAgent.replay()
             highFiveAgent.target_train()
 
+            # update sate, calculate progrress percentage
             current_state = new_state
             update_progress(step/trial_len)
             if goal:
