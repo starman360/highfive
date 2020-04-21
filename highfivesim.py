@@ -1,6 +1,7 @@
 ## This is the high-five simulator that will make it all happen
 import numpy as np
 import pandas as pd
+import math
 
 class HighFiveSim():
     def __init__(self, handFile, robotFile):
@@ -10,11 +11,12 @@ class HighFiveSim():
         self.robotTime = 0
         self.handTime = 0
         self.robotGoal = 0
-        self.handGoal = 0
+        self.handGoal_MIN = 112
+        self.handGoal_MAX = 136
 
     def importData(self):
         self.handData = pd.read_csv(self.handFile, engine='python').fillna(0.0)
-        self.handGoal = len(self.handData) - 2 ##why?
+        # self.handGoal = len(self.handData) - 2 ##why?
         self.handData = self.handData.drop(columns=['t', ' keyframeid'])
         self.robotData = pd.read_csv(self.robotFile, engine='python').fillna(0.0)
         self.robotGoal = len(self.robotData) - 2 
@@ -42,9 +44,10 @@ class HighFiveSim():
             return self.handTime
 
     def performAction(self, action):
+        '''as soon as it gets out of bounds, end trial'''
         self.robotTime += action
         self.handTime += 1
-        if self.robotTime >= self.robotGoal or self.handTime >= self.handGoal:
+        if self.robotTime >= self.robotGoal or self.handTime >= self.handGoal_MAX:
             return -1
         return action
 
@@ -52,25 +55,20 @@ class HighFiveSim():
         ''' Test if goal state. This is true if the robot end state is acheived 
             within the bounds of the hand goal state.'''
 
-        handGoal_MIN = 112
-        handGoal_MAX = 136
-
-        if handGoal_MIN <= self.handTime <= handGoal_MAX:
+        if self.handGoal_MIN <= self.handTime <= self.handGoal_MAX:
             if self.robotTime == self.robotGoal:
                 return True
         return False
 
     def goalDistance(self):
         '''return frame-count distance from current robot state to ideal hand goal state'''
-        handGoal_MIN = 112
-        handGoal_MAX = 136
-        return (handGoal_MAX+handGoal_MIN)/2
+ 
+        return (self.handGoal_MAX+self.handGoal_MIN)/2
 
     def getReward(self): #needs work ... will improve.. we promise
         ''' Two components: distance from goal and velocity'''
-        handGoal_MIN = 112
-        handGoal_MAX = 136
-        handGoal_MEAN = (handGoal_MAX+handGoal_MIN)/2
+
+        handGoal_MEAN = (self.handGoal_MAX+self.handGoal_MIN)/2
 
         ## distance
         x = self.goalDistance()
@@ -78,6 +76,8 @@ class HighFiveSim():
             distanceReward = 10/(1+exp((x/50)-200))
         else:
             distanceReward = 0
+
+
 
         ## speed, needed?
            
