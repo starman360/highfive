@@ -73,14 +73,14 @@ class HighFiveSim():
 
         handGoal_MEAN = (self.handGoal_MAX+self.handGoal_MIN)/2
 
-        ## distance
+        ## distance - get to the goal
         x = self.goalDistance()
         if x > 0:
             distanceReward = 10/(1+math.exp((x/10)-200))
         else:
             distanceReward = 0
 
-        ## velocity
+        ## velocity - get there without stopping anywhere for too long
         if self.rewardMemory == self.robotTime:
             self.rewardVelocityMeter = self.rewardVelocityMeter + 1
             velocityReward = 10/self.rewardVelocityMeter
