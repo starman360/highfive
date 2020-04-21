@@ -65,8 +65,16 @@ class HighFiveSim():
 
     def goalDistance(self):
         '''return frame-count distance from current robot state to ideal hand goal state'''
- 
-        return (self.handGoal_MAX+self.handGoal_MIN)/2
+
+        handDist =  abs(((self.handGoal_MAX+self.handGoal_MIN)/2)-self.handTime)
+        robotDist = (self.robotGoal - self.robotTime)
+
+        return (handDist,robotDist)
+
+    def getProgress(self):
+        handGoal_MEAN = (self.handGoal_MAX+self.handGoal_MIN)/2
+        return (handGoal_MEAN - self.handTime)/handGoal_MEAN
+
 
     def getReward(self): #needs work ... will improve.. we promise
         ''' Two components: distance from goal and velocity'''
@@ -74,9 +82,11 @@ class HighFiveSim():
         handGoal_MEAN = (self.handGoal_MAX+self.handGoal_MIN)/2
 
         ## distance - get to the goal
-        x = self.goalDistance()
+        h,r = self.goalDistance()
+        x = (h+r)/2
+
         if x > 0:
-            distanceReward = 10/(1+math.exp((x/10)-200))
+            distanceReward = 10/(1+math.exp((x/6)-10))
         else:
             distanceReward = 0
 

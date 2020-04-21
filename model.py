@@ -181,7 +181,9 @@ def main():
 
             # update sate, calculate progrress percentage
             current_state = new_state
-            update_progress(step/trial_len)
+            h,r = environment.goalDistance()
+            # update_progress(step/trial_len)
+            update_progress(environment.getProgress())
             if goal:
                 break
         if goal:
