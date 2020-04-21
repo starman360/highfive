@@ -14,6 +14,9 @@ class HighFiveSim():
         self.handGoal_MIN = 112
         self.handGoal_MAX = 136
 
+        self.rewardMemory = 0
+        self.rewardVelocityMeter = 1
+
     def importData(self):
         self.handData = pd.read_csv(self.handFile, engine='python').fillna(0.0)
         # self.handGoal = len(self.handData) - 2 ##why?
@@ -73,13 +76,21 @@ class HighFiveSim():
         ## distance
         x = self.goalDistance()
         if x > 0:
-            distanceReward = 10/(1+exp((x/50)-200))
+            distanceReward = 10/(1+math.exp((x/10)-200))
         else:
             distanceReward = 0
 
+        ## velocity
+        if self.rewardMemory == self.robotTime:
+            self.rewardVelocityMeter = self.rewardVelocityMeter + 1
+            velocityReward = 10/self.rewardVelocityMeter
+        else:
+            self.rewardVelocityMeter = 1
+            velocityReward = 10
+        
 
-
-        ## speed, needed?
+        self.rewardMemory = self.robotTime
+        return distanceReward + velocityReward
            
 
         # old
