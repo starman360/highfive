@@ -184,13 +184,17 @@ def main():
             h,r = environment.goalDistance()
             # update_progress(step/trial_len)
             update_progress(environment.getProgress())
-            if goal:
-                break
+
+        print(goal,environment.isGoal())
+
         if goal:
             print("completed in {} trials!".format(trial))
             break
         else:
             print("failed trial {}".format(trial))
+            print("Hand time {} / {}".format(environment.handTime,environment.handGoal_MAX))
+            print("Robot time {} / {}".format(environment.robotTime, environment.robotGoal))
+            print("last state reward {}".format(reward))
 
 if __name__ == "__main__":
     time.sleep(5)
