@@ -14,9 +14,12 @@ class HighFiveSim():
         self.handGoal_MIN = 112
         self.handGoal_MAX = 136
 
-        self.rewardMemory = 0
-        self.rewardVelocityMeter = 1
+        # self.rewardMemory = 0
+        # self.rewardVelocityMeter = 1
 
+        self.currentAction = 0
+        self.lastAction = 0
+        
     def importData(self):
         self.handData = pd.read_csv(self.handFile, engine='python').fillna(0.0)
         # self.handGoal = len(self.handData) - 2 ##why?
@@ -50,8 +53,15 @@ class HighFiveSim():
         '''as soon as it gets out of bounds, end trial'''
         self.robotTime += action
         self.handTime += 1
+
+        #check for invalid action
         if self.robotTime >= self.robotGoal or self.handTime >= self.handGoal_MAX:
-            return -1
+            action = -1
+
+        #update action memory
+        self.lastAction = self.currentAction
+        self.currentAction = action
+
         return action
 
     def isGoal(self):
@@ -77,40 +87,36 @@ class HighFiveSim():
 
 
     def getReward(self): #needs work ... will improve.. we promise
-        ''' Two components: distance from goal and velocity'''
+        ''' Two components: distance from goal and smoothness '''
 
+        smoothFactor = 1
         handGoal_MEAN = (self.handGoal_MAX+self.handGoal_MIN)/2
 
         ## distance - get to the goal
         h,r = self.goalDistance()
         x = (h*3+r)/4
-        #print(x)
-        #x = h
+
         if x > 0:
+            #possible distance reward functions
             #distanceReward = 10/(1+math.exp((x/6)-10))
             #distanceReward = -x/10 + 10
             distanceReward = ((x/10 - 10)**2.0)/10
         else:
             distanceReward = 0
 
-        ## velocity - get there without stopping anywhere for too long
-        if self.rewardMemory == self.robotTime:
-            self.rewardVelocityMeter = self.rewardVelocityMeter + 1
-            velocityReward = 5/self.rewardVelocityMeter
-        else:
-            self.rewardVelocityMeter = 1
-            velocityReward = 5
-        
+        ## smoothness - don't be jittery
+        smoothReward = smoothFactor/(abs(self.currentAction-self.lastAction)+1)
 
-        self.rewardMemory = self.robotTime
-        return distanceReward + velocityReward
+        return distanceReward + smoothReward
            
 
-        # old
-        # if self.isGoal():
-        #     return 1
+        # if self.lastAction != self.robotTime:
+        #     self.rewardVelocityMeter = self.rewardVelocityMeter + 1
+        #     velocityReward = 5/self.rewardVelocityMeter
         # else:
-        #     return -1000
+        #     self.rewardVelocityMeter = 1
+        #     velocityReward = 5
+                # self.rewardMemory = self.robotTime
         
     def reset(self):
         self.robotTime = 0
