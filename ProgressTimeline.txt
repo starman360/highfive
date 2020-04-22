@@ -1,0 +1,73 @@
+2020-04-22 15:24:58.260847: I tensorflow/stream_executor/platform/default/dso_loader.cc:42] Successfully opened dynamic library libcublas.so.10.0
+Progress: [##--------] 20.161290322580644% False False
+failed trial 0
+Hand time 100 / 136
+Robot time 121 / 120
+last state reward 7.061
+Trial : 1
+Progress: [#---------] 12.903225806451612% False False
+failed trial 1
+Hand time 109 / 136
+Robot time 120 / 120
+last state reward 8.7000625
+Trial : 2
+Progress: [###-------] 31.451612903225808% False False
+failed trial 2
+Hand time 86 / 136
+Robot time 120 / 120
+last state reward 5.47025
+Trial : 3
+Progress: [#---------] 9.67741935483871% False True
+failed trial 3
+Hand time 113 / 136
+Robot time 121 / 120
+last state reward 9.235562499999999
+Trial : 4
+Progress: [##--------] 25.0% False False4% 
+failed trial 4
+Hand time 94 / 136
+Robot time 121 / 120
+last state reward 6.352250000000001
+Trial : 5
+Progress: [##--------] 16.93548387096774% False False
+failed trial 5
+Hand time 104 / 136
+Robot time 120 / 120
+last state reward 7.556
+Trial : 6
+Progress: [----------] 1.6129032258064515% False True
+failed trial 6
+Hand time 123 / 136
+Robot time 120 / 120
+last state reward 10.153062499999999
+Trial : 7
+Progress: [##--------] 15.32258064516129% False False
+failed trial 7
+Hand time 106 / 136
+Robot time 121 / 120
+last state reward 8.31025
+Trial : 8
+Progress: [#---------] 12.903225806451612% False False
+failed trial 8
+Hand time 109 / 136
+Robot time 121 / 120
+last state reward 8.65625
+Trial : 9
+Progress: [----------] 0% Halt...29032258% 
+False True
+failed trial 9
+Hand time 126 / 136
+Robot time 120 / 120
+last state reward 10.7515625
+Trial : 10
+Progress: [----------] 0% Halt...29032258% 
+Progress: [----------] 0% Halt...
+Progress: [----------] 0% Halt...
+Progress: [----------] 0% Halt...
+Progress: [----------] 0% Halt...
+False True
+failed trial 10
+Hand time 130 / 136
+Robot time 120 / 120
+last state reward 9.716
+Trial : 11
