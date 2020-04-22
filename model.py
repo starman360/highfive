@@ -187,6 +187,10 @@ def main():
 
         print(goal,environment.isGoal())
 
+        with open("progress.csv", 'a') as f:
+            s = str(trial) + ',' + str(environment.robotTime) + ',' + str(environment.handTime) + ',' + str(reward) + ',' + str(environment.getProgress())
+            f.write(s)
+
         if goal:
             print("completed in {} trials!".format(trial))
             break
