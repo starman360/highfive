@@ -59,7 +59,7 @@ class HighFiveSim():
             within the bounds of the hand goal state.'''
 
         if self.handGoal_MIN <= self.handTime <= self.handGoal_MAX:
-            if self.robotTime == self.robotGoal:
+            if self.robotTime >= self.robotGoal:
                 return True
         return False
 
@@ -83,20 +83,23 @@ class HighFiveSim():
 
         ## distance - get to the goal
         h,r = self.goalDistance()
-        x = (h+r)/2
-
+        x = (h*3+r)/4
+        #print(x)
+        #x = h
         if x > 0:
-            distanceReward = 10/(1+math.exp((x/6)-10))
+            #distanceReward = 10/(1+math.exp((x/6)-10))
+            #distanceReward = -x/10 + 10
+            distanceReward = ((x/10 - 10)**2.0)/10
         else:
             distanceReward = 0
 
         ## velocity - get there without stopping anywhere for too long
         if self.rewardMemory == self.robotTime:
             self.rewardVelocityMeter = self.rewardVelocityMeter + 1
-            velocityReward = 10/self.rewardVelocityMeter
+            velocityReward = 5/self.rewardVelocityMeter
         else:
             self.rewardVelocityMeter = 1
-            velocityReward = 10
+            velocityReward = 5
         
 
         self.rewardMemory = self.robotTime
